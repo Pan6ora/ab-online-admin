@@ -11,8 +11,8 @@ To ensure having the last bug fix of Activity Browser Online we are gonna use th
 
 ```
 clone repositories
-git clone git@github.com:Pan6ora/activity-browser-online.git
-git clone git@github.com:Pan6ora/ab-online-admin.git
+git clone https://github.com/Pan6ora/activity-browser-online.git
+git clone https://github.com/Pan6ora/ab-online-admin.git
 
 # create conda environment
 conda create -n ab-online-web -c pan6ora activity-browser-online

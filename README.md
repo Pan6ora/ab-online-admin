@@ -26,3 +26,10 @@ pip install -e .
 cd ../ab-online-admin
 flask --app main run --debug
 ```
+
+# To be implemented
+
+- view existing sessions (name and infos)
+- create/remove sessions
+- change session setup
+- add/remove databases

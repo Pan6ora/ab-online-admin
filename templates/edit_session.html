@@ -1,0 +1,200 @@
+{% extends "layout.html" %} {% block content %}
+<main>
+  <form action="{{ url_for('edit_session', session=session) }}" method="post">
+    <div id="container">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required /><br />
+      <label for="password">Password</label>
+      <input type="text" id="password" name="password" required /><br />
+      <label for="machines">Machines</label>
+      <input
+        type="number"
+        id="machines"
+        name="machines"
+        value="1"
+        required
+      /><br />
+      <label for="ab_channel">AB version</label>
+      <select
+        id="ab_channel"
+        name="ab_channel"
+        onchange="update_ab_versions()"
+        required
+      >
+        {% for channel in ab_versions.keys() %}
+        <option value="{{channel}}">{{channel}}</option>
+        {% endfor %}
+      </select>
+      <select id="ab_version" name="ab_version" required></select
+      ><br />
+      <h1>Databases</h1>
+      <button type="button" onclick="add_database()">add</button>
+      <div id="databases_container"></div>
+      <h1>Plugins</h1>
+      <button type="button" onclick="add_plugin()">add</button>
+      <div id="plugins_container"></div>
+      <h1>Projects</h1>
+      <button type="button" onclick="add_project()">add</button>
+      <div id="projects_container"></div>
+    </div>
+    <div id="form_buttons">
+      <button type="submit">save</button>
+      <button type="button" onclick="location.href='/'">cancel</button>
+    </div>
+  </form>
+</main>
+<script>
+
+  let add_plugin_count = 1;
+  let add_project_count = 1;
+  let add_database_count = 1;
+
+  function update_ab_versions() {
+    var ab_versions = {{ab_versions|tojson|safe}};
+    select = document.getElementById("ab_version");
+    while (select.options.length > 0) {
+        select.remove(0);
+    }
+    var channel = document.getElementById("ab_channel").value;
+    for (version of ab_versions[channel].slice().reverse()) {
+      let newOption = new Option(version, version);
+      select.appendChild(newOption);
+    }
+  }
+  function update_projects_databases() {
+    for (let i = 1; i < add_project_count; i++) {
+      project_database_select = document.getElementById("project-databases-"+i);
+      while (project_database_select.options.length > 0) {
+          project_database_select.remove(0);
+        }
+      for (let j = 1; j < add_database_count; j++) {
+        db = document.getElementById("database-name-"+j);
+          let newOption = new Option(db.value, db.value);
+        project_database_select.appendChild(newOption);
+      }
+    }
+  }
+  function update_projects_plugins() {
+    for (let i = 1; i < add_project_count; i++) {
+      project_plugin_select = document.getElementById("project-plugins-"+i);
+      while (project_plugin_select.options.length > 0) {
+          project_plugin_select.remove(0);
+        }
+      for (let j = 1; j < add_plugin_count; j++) {
+        plugin = document.getElementById("plugin-"+j);
+        let newOption = new Option(plugin.options[plugin.selectedIndex].text, plugin.options[plugin.selectedIndex].value);
+        project_plugin_select.appendChild(newOption);
+      }
+    }
+  }
+  function update_plugin(plugin_id) {
+    update_plugin_versions(plugin_id);
+    update_projects_plugins();
+  }
+  function update_plugin_versions(plugin_id) {
+    var plugin_versions = {{plugins|tojson|safe}};
+    select = document.getElementById("plugin-version-"+plugin_id);
+    while (select.options.length > 0) {
+        select.remove(0);
+    }
+    var plugin = document.getElementById("plugin-"+plugin_id).value;
+    for (version of plugin_versions[plugin].slice().reverse()) {
+      let newOption = new Option(version, version);
+      select.appendChild(newOption);
+    }
+  }
+  function add_entry(template, container_id, count) {
+    let container = document.getElementById(container_id);
+    let div = document.createElement("div");
+    div.innerHTML = template;
+    container.appendChild(div);
+  }
+
+  function add_database() {
+    let i = add_database_count;
+    let template = `
+    <select
+      id="database-${i}"
+      name="database-${i}"
+    >
+      {% for db in databases %}
+      <option value="{{db}}">{{db}}</option>
+      {% endfor %}</select
+    >
+    <input type="text" id="database-name-${i}" name="database-name-${i}" onchange="update_projects_databases()" required />
+    <br />
+    `;
+    add_database_count++;
+    add_entry(template, "databases_container");
+    update_projects_databases();
+  }
+  function add_plugin() {
+    let i = add_plugin_count;
+    let template = `
+    <select
+      id="plugin-${i}"
+      name="plugin-${i}"
+      onchange="update_plugin(${i})"
+    >
+      {% for plugin in plugins.keys() %}
+      <option value="{{plugin}}">{{' '.join(plugin.split("-")[2:])}}</option>
+      {% endfor %}
+    </select>
+    <select id="plugin-version-${i}" name="plugin-version-${i}"></select
+    ><br />
+    `;
+    add_plugin_count++;
+    add_entry(template, "plugins_container");
+    update_plugin(i);
+  }
+  function add_project() {
+    let i = add_project_count;
+    let template = `
+    <div class="project_container">
+    <input type="text" id="project-name-${i}" name="project-name-${i}" placeholder="name" /><br />
+    <label for="project-databases-${i}">Databases</label>
+    <select id="project-databases-${i}" class ="multiselect" name="project-databases-${i}" multiple></select><br />
+    <label for="project-plugins-${i}">Plugins</label>
+    <select id="project-plugins-${i}" class="multiselect" name="project-plugins-${i}" multiple></select><br />
+    </div>
+    `;
+    add_project_count++;
+    add_entry(template, "projects_container");
+    update_projects_databases();
+    update_projects_plugins();
+  }
+
+  function load_session() {
+    {% if session != "@" %}
+    let session = JSON.parse({{session_infos|tojson|safe}});
+    document.getElementById("name").value = session.name;
+    document.getElementById("password").value = session.password;
+    document.getElementById("machines").value = session.machines;
+    document.getElementById("ab_channel").value = session.ab_channel;
+    document.getElementById("ab_version").value = session.ab_version;
+    for (database of session.databases) {
+      add_database();
+      id = add_database_count - 1;
+      document.getElementById("database-"+id).value = database.filename;
+      document.getElementById("database-name-"+id).value = database.name;
+    }
+    for (plugin of session.plugins) {
+      add_plugin();
+      id = add_plugin_count - 1;
+      document.getElementById("plugin-"+id).value = "/"+plugin.ab_channel+"/ab-plugin-"+plugin.name;
+      update_plugin_versions(id);
+      document.getElementById("plugin-version-"+id).value = plugin.version;
+    }
+    for (project of session.projects) {
+      add_project();
+      id = add_project_count - 1;
+      document.getElementById("project-name-"+id).value = project.name;
+    }
+    {% endif %}
+  }
+  update_ab_versions();
+  load_session();
+  update_projects_databases();
+  update_projects_plugins();
+</script>
+{% endblock %}

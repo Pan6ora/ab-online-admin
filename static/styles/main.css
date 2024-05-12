@@ -1,0 +1,167 @@
+:root {
+  --text: #1a1a1a;
+  --background: white;
+  --txt_highlight: black;
+  --bg_alt_1: #ffeed5;
+  --bg_alt_2: #dce1ff;
+  --link: #220966;
+}
+
+html {
+  line-height: 1.5;
+  font-family: Arial;
+  font-size: 16px;
+  color: var(--text);
+  background-color: var(--background);
+}
+body {
+  margin: 0 auto;
+  max-width: 40em;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+}
+div {
+  margin: 0 0.3em;
+}
+label {
+  min-width: 8em;
+  display: inline-block;
+  vertical-align: top;
+}
+.project_container label {
+  margin-top: 1em;
+}
+h1,
+h2 {
+  margin: 0.3em 0;
+  font-size: 1em;
+  display: inline-block;
+}
+h2 {
+  margin: 0.2em 0;
+}
+h3 {
+  font-size: 0.8em;
+  font-weight: normal;
+}
+.multiselect {
+  margin-top: 1em;
+  height: fit-content;
+  min-width: 12em;
+  
+}
+.project_container,
+form {
+  padding: 1em;
+  margin: 0.2em 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: grey;
+  border-radius: 3px;
+}
+select,
+button {
+  background-color: white;
+  border-style: solid;
+  border-width: 1px;
+  border-color: grey;
+  display: inline-block;
+}
+input {
+  display: inline-block;
+}
+button {
+  border-radius: 3px;
+  background-color: lightgrey;
+}
+#databases_container,
+#plugins_container,
+#projects_container {
+  margin: 0.5em 1em;
+}
+#form_buttons {
+  margin-left: auto;
+  margin-right: 0;
+}
+#form_buttons button {
+  margin-top: 1em;
+  font-size: 1em;
+  border-radius: 2px;
+  background-color: white;
+  border-width: 2px;
+}
+p {
+  margin: 1em 0;
+}
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:visited {
+  color: var(--link);
+}
+img {
+  max-width: 100%;
+}
+
+hr {
+  background-color: var(--text);
+  border: none;
+  height: 1px;
+  width: 85%;
+  margin: 1em 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+table {
+  margin: 1em 0;
+  border-collapse: collapse;
+  width: 100%;
+  overflow-x: auto;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+  margin-bottom: 0.75em;
+}
+tbody {
+  margin-top: 0.5em;
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+th {
+  border-top: 1px solid var(--text);
+  padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+  padding: 0.25em 0.5em 0.25em 0.5em;
+}
+header {
+  margin-bottom: 4em;
+  text-align: center;
+}
+div.columns {
+  display: flex;
+  gap: min(4vw, 1.5em);
+}
+div.column {
+  flex: 1;
+}
+
+/* footer */
+.footer {
+  font-size: 0.75em;
+}
+
+/* menu */
+.menu table {
+  margin-bottom: 2em;
+}
+.menu td:hover {
+  background-color: var(--bg_alt_1);
+}

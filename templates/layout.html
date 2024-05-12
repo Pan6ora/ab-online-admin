@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Home</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static',filename='styles/main.css') }}"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="menu">
+        <table>
+          <tbody>
+            <tr class="odd">
+              <td style="text-align: center">
+                <a href="{{ url_for('home') }}">Home</a>
+              </td>
+              <td style="text-align: right">
+                <h3>Activity Browser Online - Admin panel</h3>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </header>
+    <div class="container">{% block content %} {% endblock %}</div>
+  </body>
+</html>

@@ -1,8 +1,11 @@
 import urllib
 import re
+import tempfile
 import requests
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from collections import defaultdict
+from werkzeug.utils import secure_filename
 from ab_online import API
 
 app = Flask(__name__)
@@ -10,47 +13,53 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST", "DELETE"])
 def home():
-    sessions_list = API.session.list()
-    running = API.session.list(running=True)
-    sessions_infos = [
-        [session, API.session.export_json(session)] for session in sessions_list
-    ]
     if request.method == "POST":
         data = request.form
         action = data.get("action")
         session = data.get("session")
-        if action == "toggle":
+        database = data.get("database")
+        if action == "toggle_session":
             if session in running:
                 API.session.stop(session)
             else:
                 API.session.start(session)
-        elif action == "delete":
-            running = API.session.list(running=True)
-            return render_template(
-                "home.html",
-                sessions_list=sessions_list,
-                running=running,
-                sessions_infos=sessions_infos,
-            )
-        elif action == "edit":
+        elif action == "delete_session":
+            API.session.delete(session)
+        elif action == "edit_session":
             return redirect(url_for("edit_session", session=session))
-        elif action == "new":
+        elif action == "new_session":
             return redirect(url_for("edit_session", session="@"))
-    elif request.method == "GET":
-        running = API.session.list(running=True)
-        return render_template(
-            "home.html",
-            sessions_list=sessions_list,
-            running=running,
-            sessions_infos=sessions_infos,
-        )
+        elif action == "delete_database":
+            API.db.remove(database)
+        elif action == "new_database":
+            db_file = request.files["new_database"]
+            if db_file.filename == '':
+                pass
+            filename = secure_filename(db_file.filename)
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                print(tmpdirname)
+                filepath = os.path.join(tmpdirname, filename)
+                db_file.save(filepath)
+                API.db.add(file=filepath, name=filename)
+    sessions_list = API.session.list()
+    sessions_infos = [
+        [session, API.session.export_json(session)] for session in sessions_list
+    ]
+    running = API.session.list(running=True)
+    databases_list = API.db.list(extension=True)
+    return render_template(
+        "home.html",
+        sessions_list=sessions_list,
+        running=running,
+        sessions_infos=sessions_infos,
+        databases_list=databases_list,
+    )
 
 
 @app.route("/edit/<session>", methods=["GET", "POST", "DELETE"])
 def edit_session(session=None):
     if request.method == "POST":
         data = request.form.to_dict(flat=False)
-        print(data)
         session_dict = format_session_post(data)
         return redirect(url_for("home"))
     session_infos = "@"
@@ -78,7 +87,6 @@ def format_session_post(data: dict):
     session_dict["projects"] = []
 
     for key, value in data.items():
-        print(key)
         nb = key.split("-")[-1]
         if "project-name" in key:
             if f"project-databases-{nb}" in data.keys():
@@ -124,7 +132,7 @@ def list_ab_versions():
     # html = data.decode("utf-8")
     # channels_list = re.findall('<a href="/.*/activity-browser">',html)
     # channels_list = [i.split("/")[1] for i in channels_list]
-    channels_list = ["conda-forge", "bsteubing", "haasad"]
+    channels_list = ["conda-forge"]
 
     ab_versions = {}
     for channel in channels_list:

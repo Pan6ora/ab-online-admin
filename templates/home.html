@@ -1,9 +1,6 @@
 {% extends "layout.html" %} {% block content %}
 <main>
   <h1>Sessions</h1>
-  <form action="/" method="post">
-    <button type="submit" name="action" value="new">new</button>
-  </form>
   {% for session in sessions_list %}
   <form action="/" method="post">
     {{ session }}
@@ -11,7 +8,7 @@
     <button
       type="submit"
       name="action"
-      value="toggle"
+      value="toggle_session"
       id="state_{{session}}"
       onclick="toggle_session('{{ session }}')"
     >
@@ -21,7 +18,7 @@
     <button
       type="submit"
       name="action"
-      value="delete"
+      value="delete_session"
       onclick="delete_session('{{ session }}')"
     >
       DELETE
@@ -29,7 +26,7 @@
     <button
       type="submit"
       name="action"
-      value="edit"
+      value="edit_session"
       onclick="edit_session('{{ session }}')"
     >
       EDIT
@@ -37,16 +34,40 @@
     <br />
   </form>
   {% endfor %}
-
+  <form action="/" method="post">
+    <button type="submit" name="action" value="new_session">new</button>
+  </form>
+  <h1>Databases</h1>
+  {% for database in databases_list %}
+  <form action="/" method="post">
+    {{ database }}
+    <input type="hidden" name="database" value="{{database}}" />
+    <button
+      type="submit"
+      name="action"
+      value="delete_database"
+      onclick="delete_database('{{ database }}')"
+    >
+      DELETE
+    </button>
+    <br />
+  </form>
+  {% endfor %}
+  <form action="/" method="post" enctype=multipart/form-data>
+    <input type="file" name="new_database" />
+    <button type="submit" name="action" value="new_database">new</button>
+  </form>
   <h1>Infos</h1>
   <pre id="infos"></pre>
 </main>
 <script>
 
   function delete_session(session) {
-
+    confirm("Deleting a session will delete all machines storage. Are you sure ?")
   }
-
+  function delete_database(database) {
+    confirm("Are you sure ?")
+  }
   function edit_session(session) {
 
   }

@@ -113,6 +113,7 @@
   function add_database() {
     let i = add_database_count;
     let template = `
+    <div id="database-container-${i}">
     <select
       id="database-${i}"
       name="database-${i}"
@@ -122,7 +123,9 @@
       {% endfor %}</select
     >
     <input type="text" id="database-name-${i}" name="database-name-${i}" onchange="update_projects_databases()" required />
+    <button type="button" onclick="remove_database(${i})">x</button>
     <br />
+    </div>
     `;
     add_database_count++;
     add_entry(template, "databases_container");
@@ -131,6 +134,7 @@
   function add_plugin() {
     let i = add_plugin_count;
     let template = `
+    <div id="plugin-container-${i}">
     <select
       id="plugin-${i}"
       name="plugin-${i}"
@@ -140,8 +144,10 @@
       <option value="{{plugin}}">{{' '.join(plugin.split("-")[2:])}}</option>
       {% endfor %}
     </select>
-    <select id="plugin-version-${i}" name="plugin-version-${i}"></select
-    ><br />
+    <select id="plugin-version-${i}" name="plugin-version-${i}"></select>
+    <button type="button" onclick="remove_plugin(${i})">x</button>
+    <br />
+    </div>
     `;
     add_plugin_count++;
     add_entry(template, "plugins_container");
@@ -150,8 +156,9 @@
   function add_project() {
     let i = add_project_count;
     let template = `
-    <div class="project_container">
-    <input type="text" id="project-name-${i}" name="project-name-${i}" placeholder="name" /><br />
+    <div class="project_container" id="project_container-${i}">
+    <input type="text" id="project-name-${i}" name="project-name-${i}" placeholder="name" />
+    <button type="button" onclick="remove_project(${i})">x</button><br />
     <label for="project-databases-${i}">Databases</label>
     <select id="project-databases-${i}" class ="multiselect" name="project-databases-${i}" multiple></select><br />
     <label for="project-plugins-${i}">Plugins</label>
@@ -163,7 +170,17 @@
     update_projects_databases();
     update_projects_plugins();
   }
-
+  function remove_database(id) {
+    document.getElementById("database-container-"+id).remove();
+    update_projects_databases();
+  }
+  function remove_plugin(id) {
+    document.getElementById("plugin-container-"+id).remove();
+    update_projects_plugins();
+  }
+  function remove_project(id) {
+    document.getElementById("project_container-"+id).remove();
+  }
   function load_session() {
     {% if session != "@" %}
     let session = JSON.parse({{session_infos|tojson|safe}});

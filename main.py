@@ -10,6 +10,9 @@ from ab_online import API
 
 app = Flask(__name__)
 
+AB_VERSIONS = {}
+PLUGINS = {}
+
 
 @app.route("/", methods=["GET", "POST", "DELETE"])
 def home():
@@ -19,6 +22,7 @@ def home():
         session = data.get("session")
         database = data.get("database")
         if action == "toggle_session":
+            running = API.session.list(running=True)
             if session in running:
                 API.session.stop(session)
             else:
@@ -65,10 +69,12 @@ def edit_session(session=None):
     session_infos = "@"
     if session != "@":
         session_infos = API.session.export_json(session)
+    global AB_VERSIONS
+    global PLUGINS
     return render_template(
         "edit_session.html",
-        ab_versions=list_ab_versions(),
-        plugins=list_plugins(),
+        ab_versions=AB_VERSIONS,
+        plugins=PLUGINS,
         databases=API.db.list(extension=True),
         session_infos=session_infos,
         session=session
@@ -119,7 +125,7 @@ def format_session_post(data: dict):
     API.session.export_json(session, file=session.file)
 
 
-def list_ab_versions():
+def update_ab_versions():
     """get all existing ab channels and versions
     """
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
@@ -127,22 +133,24 @@ def list_ab_versions():
     headers = {'User-Agent': user_agent, }
     request = urllib.request.Request(
         url, None, headers)  # The assembled request
-    # response = urllib.request.urlopen(request)
-    # data = response.read() # The data u need
-    # html = data.decode("utf-8")
-    # channels_list = re.findall('<a href="/.*/activity-browser">',html)
-    # channels_list = [i.split("/")[1] for i in channels_list]
-    channels_list = ["conda-forge"]
+    response = urllib.request.urlopen(request)
+    data = response.read()  # The data u need
+    html = data.decode("utf-8")
+    channels_list = re.findall('<a href="/.*/activity-browser">', html)
+    channels_list = [i.split("/")[1] for i in channels_list]
+    # channels_list = ["conda-forge"]
 
     ab_versions = {}
     for channel in channels_list:
         response = requests.get(
             f"https://api.anaconda.org/package/{channel}/activity-browser")
         ab_versions[channel] = response.json()["versions"]
+    global AB_VERSIONS
+    AB_VERSIONS = ab_versions
     return ab_versions
 
 
-def list_plugins():
+def update_plugins():
     """get all existing plugins
     """
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
@@ -160,4 +168,12 @@ def list_plugins():
     for plugin in plugins_list:
         response = requests.get(f"https://api.anaconda.org/package{plugin}")
         plugins_versions[plugin] = response.json()["versions"]
+    global PLUGINS
+    PLUGINS = plugins_versions
     return plugins_versions
+
+
+print("Getting Activity Browser versions from Anaconda...")
+update_ab_versions()
+print("Getting plugins from Anaconda...")
+update_plugins()

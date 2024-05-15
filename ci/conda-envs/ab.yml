@@ -1,0 +1,6 @@
+name: ab
+channels:
+  - conda-forge
+  - pan6ora
+dependencies:
+  - activity-browser-online

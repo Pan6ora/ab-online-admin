@@ -1,0 +1,39 @@
+package:
+  name: ab-online-admin
+  version: "{{ GIT_DESCRIBE_TAG }}"
+
+source:
+  git_rev: main
+  git_url: https://github.com/Pan6ora/ab-online-admin.git
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vv "
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - conda-verify
+  run:
+    - flask
+    - appdirs
+    - werkzeug
+    - activity-browser-online
+
+about:
+  home: https://github.com/Pan6ora/ab-online-admin
+  license: LGPL3+
+  license_family: LGPL
+  license_file: LICENSE.txt
+  summary: A web interface for Activity Browser Online
+  description: |
+    The [Activity Browser](https://github.com/LCA-ActivityBrowser/activity-browser)
+    is a graphical user interface for the [brightway2](https://brightway.dev/)
+    advanced life cycle assessment framework.
+
+commands:
+  default:
+    unix: python ${PROJECT_DIR}/main.py
+    supports_http_options: true

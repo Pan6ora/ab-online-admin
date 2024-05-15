@@ -32,6 +32,11 @@ setup(
     url="https://github.com/Pan6ora/ab-online-admin",
     long_description=open("README.md").read(),
     description="A web interface for Activity Browser Online",
+    entry_points={
+        "console_scripts": [
+            "ab-online-admin = ab_online_admin:run_ab_online_admin",
+        ]
+    },
     package_dir={"": "."},
     package_data={
         "ab_online_admin": ["static/*",

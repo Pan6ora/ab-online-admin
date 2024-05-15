@@ -2,12 +2,11 @@ import urllib
 import re
 import tempfile
 import requests
-import os
 import sys
-from argparse import ArgumentParser
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, Blueprint
 from collections import defaultdict
 from werkzeug.utils import secure_filename
+from argparse import ArgumentParser
 from ab_online import API
 
 AB_VERSIONS = {}
@@ -33,9 +32,9 @@ def home():
         elif action == "delete_session":
             API.session.delete(session)
         elif action == "edit_session":
-            return redirect(url_for("edit_session", session=session))
+            return redirect(url_for("ab_online_web.edit_session", session=session))
         elif action == "new_session":
-            return redirect(url_for("edit_session", session="@"))
+            return redirect(url_for("ab_online_web.edit_session", session="@"))
         elif action == "delete_database":
             API.db.remove(database)
         elif action == "new_database":
@@ -68,7 +67,7 @@ def edit_session(session=None):
     if request.method == "POST":
         data = request.form.to_dict(flat=False)
         session_dict = format_session_post(data)
-        return redirect(url_for("home"))
+        return redirect(url_for("ab_online_web.home"))
     session_infos = "@"
     if session != "@":
         session_infos = API.session.export_json(session)
@@ -176,44 +175,29 @@ def update_plugins():
     return plugins_versions
 
 
-if __name__ == '__main__':
+def launch_server(args):
     # arg parser for the standard anaconda-project options
     parser = ArgumentParser(prog="ab-online-web",
                             description="A web interface for Activity Browser Online")
-    parser.add_argument('--anaconda-project-host', action='append', default=[],
+    parser.add_argument('--host', action='append', default=[],
                         help='Hostname to allow in requests')
-    parser.add_argument('--anaconda-project-port', action='store', default=8086, type=int,
+    parser.add_argument('--port', action='store', default=8086, type=int,
                         help='Port to listen on')
-    parser.add_argument('--anaconda-project-iframe-hosts',
-                        action='append',
-                        help='Space-separated hosts which can embed us in an iframe per our Content-Security-Policy')
-    parser.add_argument('--anaconda-project-no-browser', action='store_true',
-                        default=False,
-                        help='Disable opening in a browser')
-    parser.add_argument('--anaconda-project-use-xheaders',
-                        action='store_true',
-                        default=False,
-                        help='Trust X-headers from reverse proxy')
-    parser.add_argument('--anaconda-project-url-prefix', action='store', default='',
+    parser.add_argument('--prefix', action='store', default='',
                         help='Prefix in front of urls')
-    parser.add_argument('--anaconda-project-address',
-                        action='store',
-                        default='0.0.0.0',
-                        help='IP address the application should listen on.')
 
-    args = parser.parse_args()
-
-    app = Flask(__name__)
-    app.register_blueprint(
-        ab_online_web, url_prefix=args.anaconda_project_url_prefix)
-
-    app.config['PREFERRED_URL_SCHEME'] = 'https'
-
-    app.wsgi_app = ProxyFix(app.wsgi_app)
-    app.run(host=args.anaconda_project_address,
-            port=args.anaconda_project_port)
+    args = parser.parse_args(args)
 
     print("Getting Activity Browser versions from Anaconda...")
     update_ab_versions()
     print("Getting plugins from Anaconda...")
     update_plugins()
+
+    app = Flask(__name__)
+    app.register_blueprint(
+        ab_online_web, url_prefix=args.prefix)
+
+    app.config['PREFERRED_URL_SCHEME'] = 'https'
+
+    app.run(host=args.host,
+            port=args.port)

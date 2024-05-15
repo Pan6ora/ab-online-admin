@@ -8,6 +8,10 @@ This project contains a Flask server that can be used to manage [Activity Browse
 
 Launch reproducible [Activity Browser](https://github.com/LCA-ActivityBrowser/activity-browser) sessions and distribute them using NoVNC.
 
+## Quickstart
+
+See [Activity Browser Online documentation](https://activity-browser-online.readthedocs.io/en/latest/usage/quickstart.html) for how to install and setup AB Online and AB Online Admin.
+
 ## Developer quickstart
 
 To ensure having the last bug fix of Activity Browser Online use the git version:
@@ -29,3 +33,8 @@ pip install -e .
 cd ../ab-online-admin
 flask --app main run --debug
 ```
+
+## Screenshots
+
+![](ab_online_admin/static/png/home_view.png)
+![](ab_online_admin/static/png/home_view.png)

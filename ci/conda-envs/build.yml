@@ -1,6 +1,7 @@
 name: build
 channels:
   - conda-forge
+  - pan6ora
 dependencies:
   - conda-build
   - anaconda-client

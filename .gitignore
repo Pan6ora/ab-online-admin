@@ -1,1 +1,7 @@
 __pycache__
+
+# Sphinx documentation
+docs/build
+
+# Ignore local build files
+ab_online_admin.egg-info

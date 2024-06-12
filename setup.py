@@ -7,7 +7,7 @@ root_dir = os.path.dirname(__file__)
 if root_dir:
     os.chdir(root_dir)
 
-for dirpath, dirnames, filenames in os.walk("ab_online"):
+for dirpath, dirnames, filenames in os.walk("ab_online_admin"):
     # Ignore dirnames that start with '.'
     if "__init__.py" in filenames or "static" in dirpath or "templates" in dirpath:
         pkg = dirpath.replace(os.path.sep, ".")
